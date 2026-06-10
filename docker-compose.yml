@@ -1,0 +1,32 @@
+# Quick start (from the repository root, SE Agent/):
+#   docker compose -f agent_team/docker-compose.yml up --build
+# Then open http://localhost:8000
+#
+# Sources come from tetris_mvp/inputs, the Vosk model from tetris_mvp/models,
+# and generated decks land in agent_team/outputs (all mounted as volumes).
+
+services:
+  studio:
+    build:
+      context: ..
+      dockerfile: agent_team/Dockerfile
+    image: agent-team-studio
+    ports:
+      - "8000:8000"
+    environment:
+      INPUTS_DIR: /app/agent_team/inputs
+      OUTPUTS_DIR: /app/agent_team/outputs
+      VOSK_MODEL_PATH: /models/vosk-model-small-en-us-0.15
+      MEDIA_MAX_FRAMES: "60"
+    volumes:
+      # Source files (rw so the transcript cache can be written next to them).
+      - ../tetris_mvp/inputs:/app/agent_team/inputs
+      # Generated decks + extracted assets.
+      - ./outputs:/app/agent_team/outputs
+      # Offline transcription model (read-only).
+      - ../tetris_mvp/models:/models:ro
+      # Optional TLS certs for Azure behind a proxy (read-only).
+      - ../tetris_mvp/certs:/app/tetris_mvp/certs:ro
+      # Optional Azure OpenAI credentials (read-only). Comment out to run offline.
+      - ./.env:/app/agent_team/.env:ro
+    restart: unless-stopped
