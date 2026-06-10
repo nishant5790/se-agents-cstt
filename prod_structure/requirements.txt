@@ -1,0 +1,28 @@
+# Core (always needed)
+pydantic>=2.6
+python-dotenv>=1.0
+python-pptx>=0.6.23
+certifi>=2024.2
+
+# Demo web API + UI
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-multipart>=0.0.9
+
+# Optional per-format extractors (install what you need)
+openpyxl>=3.1          # .xlsx / .xls
+pypdf>=4.0             # .pdf
+imageio-ffmpeg>=0.4.9  # bundled ffmpeg fallback for audio/video
+numpy>=1.26            # frame similarity math (video tool)
+Pillow>=10.0           # frame loading/resizing (video tool)
+
+# Optional LLM path (Azure OpenAI). Without it the team runs deterministically.
+openai>=1.40
+
+# Optional Azure media extraction (Whisper transcript + GPT-4o frame captions).
+azure-ai-documentintelligence>=1.0  # slide/frame OCR (optional, only if AZURE_DOCUMENT_INTELLIGENCE_* set)
+
+# Offline transcription fallback (MEDIA_TRANSCRIBE_BACKEND=local). Pulls torch
+# (CPU). Keep enabled if you rely on local Whisper instead of an Azure Whisper
+# deployment.
+openai-whisper>=20231117

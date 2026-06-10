@@ -1,0 +1,43 @@
+# Quick start (from the repository root, SE Agent/):
+#   docker compose -f agent_team/docker-compose.yml up --build
+# Then open http://localhost:8000
+#
+# Sources come from agent_team/inputs and generated decks + extracted assets land
+# in agent_team/outputs (both mounted as volumes). Azure credentials (for Whisper
+# transcription + GPT-4o frame captions) are read from agent_team/.env; without
+# them set MEDIA_TRANSCRIBE_BACKEND=local for offline transcription.
+
+services:
+  studio:
+    build:
+      context: ..
+      dockerfile: agent_team/Dockerfile
+    image: agent-team-studio
+    ports:
+      - "8000:8000"
+    environment:
+      INPUTS_DIR: /app/agent_team/inputs
+      OUTPUTS_DIR: /app/agent_team/outputs
+      LOG_LEVEL: INFO
+      # Transcription backend: "azure" (Whisper deployment) or "local" (offline).
+      MEDIA_TRANSCRIBE_BACKEND: local
+      LOCAL_WHISPER_MODEL: tiny
+      # Video tool tuning.
+      VIDEO_CHUNK_SECS: "90"
+      VIDEO_FRAME_INTERVAL: "5"
+      VIDEO_SIMILARITY_THRESHOLD: "0.95"
+      VIDEO_ANALYZE_FRAMES: "1"
+      # On-screen text extraction per kept frame via Azure Document Intelligence
+      # (prebuilt-read). Requires AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT + _KEY.
+      AZURE_MEDIA_OCR_FRAMES: "1"
+    volumes:
+      # Source files (rw so the transcript cache can be written next to them).
+      - ./inputs:/app/agent_team/inputs
+      # Generated decks + extracted assets.
+      - ./outputs:/app/agent_team/outputs
+      # Optional TLS certs for Azure behind a proxy (read-only).
+      - ./certs:/app/agent_team/certs:ro
+      # Azure OpenAI / Document Intelligence credentials (read-only).
+      # Comment out and set MEDIA_TRANSCRIBE_BACKEND=local to run offline.
+      - ./.env:/app/agent_team/.env:ro
+    restart: unless-stopped

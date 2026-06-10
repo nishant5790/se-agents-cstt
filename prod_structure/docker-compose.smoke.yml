@@ -1,0 +1,10 @@
+# Smoke-test override: run the pipeline against a short clip instead of the full
+# 61-minute video. Usage (from SE Agent/ root):
+#   docker compose -f agent_team/docker-compose.yml -f agent_team/docker-compose.smoke.yml up -d
+services:
+  studio:
+    volumes:
+      - ./inputs_smoke:/app/agent_team/inputs
+      - ./outputs:/app/agent_team/outputs
+      - ./certs:/app/agent_team/certs:ro
+      - ./.env:/app/agent_team/.env:ro
